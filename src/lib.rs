@@ -18,8 +18,7 @@ extern crate tempdir;
 mod attributes;
 mod cell_extras;
 
-/// Contains dom related structs
-pub mod dom;
+mod dom;
 pub mod iter;
 mod node_data_ref;
 mod parser;
