@@ -17,7 +17,7 @@ use tree::{ElementData, Node, NodeData, NodeRef};
 /// The definition of whitespace per CSS Selectors Level 3 § 4.
 ///
 /// Copied from rust-selectors.
-static SELECTOR_WHITESPACE: &'static [char] = &[' ', '\t', '\n', '\r', '\x0C'];
+static SELECTOR_WHITESPACE: &[char] = &[' ', '\t', '\n', '\r', '\x0C'];
 
 #[derive(Debug, Clone)]
 pub struct KuchikiSelectors;
@@ -195,11 +195,11 @@ impl selectors::Element for NodeDataRef<ElementData> {
     }
 
     #[inline]
-    fn local_name<'a>(&'a self) -> &'a LocalName {
+    fn local_name(&self) -> &LocalName {
         &self.name.local
     }
     #[inline]
-    fn namespace<'a>(&'a self) -> &'a Namespace {
+    fn namespace(&self) -> &Namespace {
         &self.name.ns
     }
 
@@ -255,7 +255,7 @@ impl selectors::Element for NodeDataRef<ElementData> {
                 .any(|(name, attr)| name.local == *local_name && operation.eval_str(&attr.value)),
             NamespaceConstraint::Specific(ref ns_url) => attrs
                 .map
-                .get(&ExpandedName::new(ns_url.clone(), local_name.clone()))
+                .get(&ExpandedName::new(&(*ns_url).clone(), local_name.clone()))
                 .map_or(false, |attr| operation.eval_str(&attr.value)),
         }
     }
@@ -333,7 +333,7 @@ impl Selectors {
         I: Iterator<Item = NodeDataRef<ElementData>>,
     {
         Select {
-            iter: iter,
+            iter,
             selectors: self,
         }
     }
@@ -378,10 +378,10 @@ impl fmt::Display for Selectors {
         let first = iter
             .next()
             .expect("Empty Selectors, should contain at least one selector");
-        try!(first.0.to_css(f));
+        first.0.to_css(f)?;
         for selector in iter {
-            try!(f.write_str(", "));
-            try!(selector.0.to_css(f));
+            f.write_str(", ")?;
+            selector.0.to_css(f)?;
         }
         Ok(())
     }
