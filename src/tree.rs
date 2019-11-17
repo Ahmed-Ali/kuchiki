@@ -411,6 +411,14 @@ impl Node {
             }
         }
     }
+    /// Sets new html tag name for this node
+    pub fn set_html_tag_name(&mut self, new_name: &str) {
+        if let NodeData::Element(ref mut value) = self.data {
+            value.name.local = LocalName::from(new_name);
+        } else {
+            panic!("Calling set_html_tag_name with non-element node");
+        }
+    }
 }
 
 impl NodeRef {
