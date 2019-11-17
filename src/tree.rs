@@ -1,6 +1,7 @@
 use html5ever::tree_builder::QuirksMode;
-use html5ever::QualName;
+use html5ever::{LocalName, QualName};
 use std::cell::{Cell, RefCell};
+use std::collections::BTreeMap;
 use std::fmt;
 use std::ops::Deref;
 use std::rc::{Rc, Weak};
@@ -221,6 +222,19 @@ impl NodeRef {
             name,
             attributes: RefCell::new(Attributes {
                 map: attributes.into_iter().collect(),
+            }),
+        }))
+    }
+
+    /// Creates HTML element
+    #[inline]
+    pub fn new_html_element(name: &str) -> NodeRef {
+        let name = QualName::new(None, ns!(html), LocalName::from(name));
+        NodeRef::new(NodeData::Element(ElementData {
+            template_contents: None,
+            name,
+            attributes: RefCell::new(Attributes {
+                map: BTreeMap::new(),
             }),
         }))
     }
