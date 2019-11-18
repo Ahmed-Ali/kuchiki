@@ -501,13 +501,16 @@ impl NodeRef {
         }
     }
 
-    /// Renames the passed node using the passed name
+    /// Consumes, clones and renames the passed node using the passed name
     /// and returns a reference to the updated node
-    pub fn rename_element_node(node: NodeRef, tag_name: &str) -> NodeRef {
-        if node.as_element().is_none() {
-            panic!("Calling rename_element_node with non-element node");
+    /// The passed node will be consumed,
+    /// it will not have any child, parent or siblings after this call
+    /// use the returned node instead
+    pub fn clone_and_rename_element(self, tag_name: &str) -> NodeRef {
+        if self.as_element().is_none() {
+            panic!("Calling clone_and_rename_element with non-element node");
         }
-        let e = node.as_element().unwrap();
+        let e = self.as_element().unwrap();
         let name = QualName::new(
             e.name.prefix.clone(),
             e.name.ns.clone(),
@@ -518,14 +521,12 @@ impl NodeRef {
             name,
             attributes: e.attributes.clone(),
         }));
-        node.insert_after(new_node.clone());
-        node.detach();
+        self.insert_after(new_node.clone());
+        self.detach();
 
-        let mut child = node.first_child();
+        let mut child = self.first_child();
         while child.is_some() {
             let child_unwraped = child.clone().unwrap();
-            let child_str = child_unwraped.to_string();
-            println!("Child: {}", child_str);
             child = child_unwraped.next_sibling();
             new_node.append(child_unwraped);
         }
