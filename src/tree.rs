@@ -411,14 +411,6 @@ impl Node {
             }
         }
     }
-    /// Sets new html tag name for this node
-    pub fn set_html_tag_name(&mut self, new_name: &str) {
-        if let NodeData::Element(ref mut value) = self.data {
-            value.name.local = LocalName::from(new_name);
-        } else {
-            panic!("Calling set_html_tag_name with non-element node");
-        }
-    }
 }
 
 impl NodeRef {
@@ -507,5 +499,36 @@ impl NodeRef {
             debug_assert!(parent.first_child().unwrap() == *self);
             parent.first_child.replace(Some(new_sibling.0));
         }
+    }
+
+    /// Sets the html tag name of the passed node
+    pub fn set_element_tag_name(node: NodeRef, tag_name: &str) -> NodeRef {
+        if node.as_element().is_none() {
+            panic!("Calling set_element_tag_name with non-element node");
+        }
+        let e = node.as_element().unwrap();
+        let name = QualName::new(
+            e.name.prefix.clone(),
+            e.name.ns.clone(),
+            LocalName::from(tag_name),
+        );
+        let new_node = NodeRef::new(NodeData::Element(ElementData {
+            template_contents: e.template_contents.clone(),
+            name,
+            attributes: e.attributes.clone(),
+        }));
+        node.insert_after(new_node.clone());
+        node.detach();
+
+        let mut child = node.first_child();
+        while child.is_some() {
+            let child_unwraped = child.clone().unwrap();
+            let child_str = child_unwraped.to_string();
+            println!("Child: {}", child_str);
+            child = child_unwraped.next_sibling();
+            new_node.append(child_unwraped);
+        }
+
+        new_node
     }
 }
