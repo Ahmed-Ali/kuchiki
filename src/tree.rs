@@ -502,9 +502,9 @@ impl NodeRef {
     }
 
     /// Sets the html tag name of the passed node
-    pub fn set_element_tag_name(node: NodeRef, tag_name: &str) -> NodeRef {
+    pub fn rename_element_node(node: NodeRef, tag_name: &str) -> NodeRef {
         if node.as_element().is_none() {
-            panic!("Calling set_element_tag_name with non-element node");
+            panic!("Calling rename_element_node with non-element node");
         }
         let e = node.as_element().unwrap();
         let name = QualName::new(
