@@ -501,7 +501,8 @@ impl NodeRef {
         }
     }
 
-    /// Sets the html tag name of the passed node
+    /// Renames the passed node using the passed name
+    /// and returns a reference to the updated node
     pub fn rename_element_node(node: NodeRef, tag_name: &str) -> NodeRef {
         if node.as_element().is_none() {
             panic!("Calling rename_element_node with non-element node");
