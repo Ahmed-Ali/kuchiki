@@ -77,7 +77,7 @@ impl ToString for NodeRef {
     #[inline]
     fn to_string(&self) -> String {
         let mut u8_vec = Vec::new();
-        self.serialize(&mut u8_vec).unwrap();
+        self.serialize(&mut u8_vec, true).unwrap();
         String::from_utf8(u8_vec).unwrap()
     }
 }
@@ -85,12 +85,18 @@ impl ToString for NodeRef {
 impl NodeRef {
     /// Serialize this node and its descendants in HTML syntax to the given stream.
     #[inline]
-    pub fn serialize<W: Write>(&self, writer: &mut W) -> Result<()> {
+    pub fn serialize<W: Write>(&self, writer: &mut W, include_self: bool) -> Result<()> {
+        let scope = if include_self {
+            IncludeNode
+        } else {
+            ChildrenOnly(None)
+        };
+
         serialize(
             writer,
             self,
             SerializeOpts {
-                traversal_scope: IncludeNode,
+                traversal_scope: scope,
                 ..Default::default()
             },
         )
@@ -100,6 +106,18 @@ impl NodeRef {
     #[inline]
     pub fn serialize_to_file<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let mut file = File::create(&path)?;
-        self.serialize(&mut file)
+        self.serialize(&mut file, true)
+    }
+
+    /// Returns the outer HTML of the node
+    pub fn html(&self) -> String {
+        self.to_string()
+    }
+
+    /// Returns the inner HTML of the node
+    pub fn inner_html(&self) -> String {
+        let mut u8_vec = Vec::new();
+        self.serialize(&mut u8_vec, false).unwrap();
+        String::from_utf8(u8_vec).unwrap()
     }
 }
