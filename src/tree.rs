@@ -121,7 +121,7 @@ pub struct Node {
     next_sibling: Cell<Option<Rc<Node>>>,
     first_child: Cell<Option<Rc<Node>>>,
     last_child: Cell<Option<Weak<Node>>>,
-    readability_score: Cell<Option<i64>>,
+    readability_score: Cell<Option<f64>>,
     data: NodeData,
 }
 
@@ -382,14 +382,14 @@ impl Node {
     }
 
     /// Getter for readability_score
-    pub fn readability_score(&self) -> Option<i64> {
+    pub fn readability_score(&self) -> Option<f64> {
         self.readability_score.get()
     }
 
     /// Offsets the current readability score with the passed
     /// offset, or set its initial value to the passed offset
     /// if it is not already set
-    pub fn offset_readability_score(&self, offset: i64) {
+    pub fn offset_readability_score(&self, offset: f64) {
         if let Some(s) = self.readability_score.get() {
             self.readability_score.set(Some(s + offset));
         } else {
@@ -398,7 +398,7 @@ impl Node {
     }
 
     /// Sets the readability score value
-    pub fn set_readability_score(&self, value: Option<i64>) {
+    pub fn set_readability_score(&self, value: Option<f64>) {
         self.readability_score.set(value);
     }
 
