@@ -122,6 +122,7 @@ pub struct Node {
     first_child: Cell<Option<Rc<Node>>>,
     last_child: Cell<Option<Weak<Node>>>,
     readability_score: Cell<Option<f64>>,
+    is_readability_data_table: Cell<bool>,
     data: NodeData,
 }
 
@@ -205,6 +206,7 @@ impl NodeRef {
             previous_sibling: Cell::new(None),
             next_sibling: Cell::new(None),
             readability_score: Cell::new(None),
+            is_readability_data_table: Cell::new(false),
             data,
         }))
     }
@@ -400,6 +402,17 @@ impl Node {
     /// Sets the readability score value
     pub fn set_readability_score(&self, value: Option<f64>) {
         self.readability_score.set(value);
+    }
+
+    /// Returns whether this node is marked as readability_data_table
+    pub fn is_readability_data_table(&self) -> bool {
+        self.is_readability_data_table.get()
+    }
+
+    /// Sets whether this node is_readability_data_table
+    pub fn set_readability_data_table(&self, is_readability_data_table: bool) {
+        self.is_readability_data_table
+            .set(is_readability_data_table);
     }
 
     /// Detach a node from its parent and siblings. Children are not affected.
