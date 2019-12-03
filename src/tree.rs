@@ -569,4 +569,16 @@ impl NodeRef {
 
         new_node
     }
+
+    /// Returns Some(NodeRef) once it hits an element child
+    /// None if it reaches the end of the children list
+    /// without finding an element
+    pub fn first_element_child(&self) -> Option<NodeRef> {
+        for c in self.children() {
+            if c.as_element().is_some() {
+                return Some(c.clone());
+            }
+        }
+        None
+    }
 }
