@@ -91,7 +91,12 @@ impl TreeSink for HTMLDom {
     #[inline]
     fn append(&mut self, parent: &NodeRef, child: NodeOrText<NodeRef>) {
         match child {
-            NodeOrText::AppendNode(node) => parent.append(node),
+            NodeOrText::AppendNode(node) => {
+                if node.as_comment().is_none() {
+                    parent.append(node)
+                }
+            }
+
             NodeOrText::AppendText(text) => {
                 if let Some(last_child) = parent.last_child() {
                     if let Some(existing) = last_child.as_text() {
@@ -107,7 +112,11 @@ impl TreeSink for HTMLDom {
     #[inline]
     fn append_before_sibling(&mut self, sibling: &NodeRef, child: NodeOrText<NodeRef>) {
         match child {
-            NodeOrText::AppendNode(node) => sibling.insert_before(node),
+            NodeOrText::AppendNode(node) => {
+                if node.as_comment().is_none() {
+                    sibling.insert_before(node);
+                }
+            }
             NodeOrText::AppendText(text) => {
                 if let Some(previous_sibling) = sibling.previous_sibling() {
                     if let Some(existing) = previous_sibling.as_text() {
