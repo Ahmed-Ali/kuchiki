@@ -110,6 +110,19 @@ impl NodeRef {
         }
     }
 
+    /// Return an iterator of references to this node’s element children.
+    #[inline]
+    pub fn element_children(&self) -> ElementSiblings {
+        match (self.first_child(), self.last_child()) {
+            (Some(first_child), Some(last_child)) => ElementSiblings(Some(State {
+                next: first_child,
+                next_back: last_child,
+            })),
+            (None, None) => ElementSiblings(None),
+            _ => unreachable!(),
+        }
+    }
+
     /// Return an iterator of references to this node and its descendants, in tree order.
     ///
     /// Parent nodes appear before the descendants.
@@ -201,6 +214,19 @@ impl Iterator for Siblings {
 
 impl DoubleEndedIterator for Siblings {
     siblings_next!(next_back, next, previous_sibling);
+}
+
+/// A double-ended iterator of element sibling nodes.
+#[derive(Debug, Clone)]
+pub struct ElementSiblings(Option<State<NodeRef>>);
+
+impl Iterator for ElementSiblings {
+    type Item = NodeRef;
+    siblings_next!(next, next_back, next_element_sibling);
+}
+
+impl DoubleEndedIterator for ElementSiblings {
+    siblings_next!(next_back, next, previous_element_sibling);
 }
 
 /// An iterator on ancestor nodes.

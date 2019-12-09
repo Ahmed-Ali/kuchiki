@@ -591,4 +591,14 @@ impl NodeRef {
 
         sib
     }
+
+    /// Returns the first sibling that is an element
+    pub fn previous_element_sibling(&self) -> Option<NodeRef> {
+        let mut sib = self.previous_sibling();
+        while sib.is_some() && sib.clone().unwrap().as_element().is_none() {
+            sib = sib.clone().unwrap().previous_sibling();
+        }
+
+        sib
+    }
 }
