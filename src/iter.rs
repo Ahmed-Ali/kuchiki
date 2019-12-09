@@ -113,7 +113,7 @@ impl NodeRef {
     /// Return an iterator of references to this node’s element children.
     #[inline]
     pub fn element_children(&self) -> ElementSiblings {
-        match (self.first_child(), self.last_child()) {
+        match (self.first_element_child(), self.last_element_child()) {
             (Some(first_child), Some(last_child)) => ElementSiblings(Some(State {
                 next: first_child,
                 next_back: last_child,

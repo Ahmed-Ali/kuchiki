@@ -582,13 +582,24 @@ impl NodeRef {
         None
     }
 
+    /// Iterating in reversed order, returns Some(NodeRef) once it hits an element child
+    /// None if it reaches the end of the children list
+    /// without finding an element
+    pub fn last_element_child(&self) -> Option<NodeRef> {
+        for c in self.children().rev() {
+            if c.as_element().is_some() {
+                return Some(c.clone());
+            }
+        }
+        None
+    }
+
     /// Returns the first sibling that is an element
     pub fn next_element_sibling(&self) -> Option<NodeRef> {
         let mut sib = self.next_sibling();
         while sib.is_some() && sib.clone().unwrap().as_element().is_none() {
             sib = sib.clone().unwrap().next_sibling();
         }
-
         sib
     }
 
