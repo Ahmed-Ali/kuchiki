@@ -555,17 +555,16 @@ impl NodeRef {
         let new_node = NodeRef::new(NodeData::Element(ElementData {
             template_contents: e.template_contents.clone(),
             name,
-            attributes: e.attributes.clone(),
+            attributes: RefCell::new(Attributes {
+                map: e.attributes.borrow().map.clone(),
+            }),
         }));
-        self.insert_after(new_node.clone());
-        self.detach();
 
-        let mut child = self.first_child();
-        while child.is_some() {
-            let child_unwraped = child.clone().unwrap();
-            child = child_unwraped.next_sibling();
-            new_node.append(child_unwraped);
+        while self.first_child().is_some() {
+            new_node.append(self.first_child().unwrap());
         }
+        self.insert_before(new_node.clone());
+        self.detach();
 
         new_node
     }
