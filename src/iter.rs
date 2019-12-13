@@ -170,7 +170,7 @@ impl NodeRef {
     /// Return an iterator of the inclusive descendants element that match the given selector list.
     #[inline]
     pub fn select(&self, selectors: &str) -> Result<Select<Elements<Descendants>>, ()> {
-        self.inclusive_descendants().select(selectors)
+        self.descendants().select(selectors)
     }
 
     /// Return the first inclusive descendants element that match the given selector list.
