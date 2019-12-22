@@ -31,11 +31,25 @@ impl SelectorImpl for KuchikiSelectors {
     type NamespaceUrl = Namespace;
     type BorrowedNamespaceUrl = Namespace;
     type BorrowedLocalName = LocalName;
-
     type NonTSPseudoClass = PseudoClass;
     type PseudoElement = PseudoElement;
-
+    type PartName = PartNameLocal;
     type ExtraMatchingData = ();
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PartNameLocal;
+
+impl fmt::Display for PartNameLocal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "")
+    }
+}
+
+impl<'a> From<&'a str> for PartNameLocal {
+    fn from(_: &'a str) -> Self {
+        PartNameLocal {}
+    }
 }
 
 struct KuchikiParser;
@@ -100,6 +114,17 @@ impl NonTSPseudoClass for PseudoClass {
     fn is_active_or_hover(&self) -> bool {
         matches!(*self, PseudoClass::Active | PseudoClass::Hover)
     }
+
+    fn is_user_action_state(&self) -> bool {
+        matches!(
+            *self,
+            PseudoClass::Active | PseudoClass::Hover | PseudoClass::Focus
+        )
+    }
+
+    fn has_zero_specificity(&self) -> bool {
+        false
+    }
 }
 
 impl ToCss for PseudoClass {
@@ -140,6 +165,16 @@ impl selectors::parser::PseudoElement for PseudoElement {
 
 impl selectors::Element for NodeDataRef<ElementData> {
     type Impl = KuchikiSelectors;
+    // `is_same_type`, `exported_part`, `imported_part`, `is_part`
+    #[inline]
+    fn is_pseudo_element(&self) -> bool {
+        false
+    }
+
+    #[inline]
+    fn has_local_name(&self, local_name: &LocalName) -> bool {
+        &self.name.local == local_name
+    }
 
     #[inline]
     fn opaque(&self) -> OpaqueElement {
@@ -195,12 +230,33 @@ impl selectors::Element for NodeDataRef<ElementData> {
     }
 
     #[inline]
-    fn local_name(&self) -> &LocalName {
-        &self.name.local
+    fn exported_part(
+        &self,
+        _name: &<Self::Impl as SelectorImpl>::PartName,
+    ) -> Option<<Self::Impl as SelectorImpl>::PartName> {
+        None
     }
+
     #[inline]
-    fn namespace(&self) -> &Namespace {
-        &self.name.ns
+    fn imported_part(
+        &self,
+        _name: &<Self::Impl as SelectorImpl>::PartName,
+    ) -> Option<<Self::Impl as SelectorImpl>::PartName> {
+        None
+    }
+
+    #[inline]
+    fn is_part(&self, _name: &<Self::Impl as SelectorImpl>::PartName) -> bool {
+        false
+    }
+
+    #[inline]
+    fn has_namespace(&self, ns: &Namespace) -> bool {
+        &self.name.ns == ns
+    }
+
+    fn is_same_type(&self, other: &Self) -> bool {
+        self.name == other.name
     }
 
     #[inline]
