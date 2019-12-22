@@ -415,6 +415,19 @@ impl Node {
             .set(is_readability_data_table);
     }
 
+    /// Returns the value of the attribute if any
+    pub fn attr_value(&self, attr_name: &str) -> Option<String> {
+        match self.data {
+            NodeData::Element(ref e) => {
+                if let Some(v) = e.attributes.borrow().get(attr_name) {
+                    return Some(String::from(v));
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
     /// Detach a node from its parent and siblings. Children are not affected.
     ///
     /// To remove a node and its descendants, detach it and drop any strong reference to it.
