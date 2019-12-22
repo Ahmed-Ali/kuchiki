@@ -5,8 +5,9 @@ use std::fs::File;
 use std::io::{Result, Write};
 use std::path::Path;
 use std::string::ToString;
-
 use tree::{NodeData, NodeRef};
+use xml5ever::serialize::serialize as xml_serialize;
+use xml5ever::serialize::SerializeOpts as XmlSerializeOpts;
 
 impl Serialize for NodeRef {
     fn serialize<S: Serializer>(
@@ -102,6 +103,24 @@ impl NodeRef {
         )
     }
 
+    /// Serialize this node and its descendants in XHTML syntax to the given stream.
+    #[inline]
+    pub fn xml_serialize<W: Write>(&self, writer: &mut W, include_self: bool) -> Result<()> {
+        let scope = if include_self {
+            IncludeNode
+        } else {
+            ChildrenOnly(None)
+        };
+
+        xml_serialize(
+            writer,
+            self,
+            XmlSerializeOpts {
+                traversal_scope: scope,
+            },
+        )
+    }
+
     /// Serialize this node and its descendants in HTML syntax to a new file at the given path.
     #[inline]
     pub fn serialize_to_file<P: AsRef<Path>>(&self, path: P) -> Result<()> {
@@ -118,6 +137,20 @@ impl NodeRef {
     pub fn inner_html(&self) -> String {
         let mut u8_vec = Vec::new();
         self.serialize(&mut u8_vec, false).unwrap();
+        String::from_utf8(u8_vec).unwrap()
+    }
+
+    /// Returns the outer XHMTL of the node
+    pub fn xhtml(&self) -> String {
+        let mut u8_vec = Vec::new();
+        self.xml_serialize(&mut u8_vec, true).unwrap();
+        String::from_utf8(u8_vec).unwrap()
+    }
+
+    /// Returns the inner XHMTL of the node
+    pub fn inner_xhtml(&self) -> String {
+        let mut u8_vec = Vec::new();
+        self.xml_serialize(&mut u8_vec, false).unwrap();
         String::from_utf8(u8_vec).unwrap()
     }
 }
