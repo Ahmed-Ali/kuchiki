@@ -588,7 +588,7 @@ impl NodeRef {
     pub fn first_element_child(&self) -> Option<NodeRef> {
         for c in self.children() {
             if c.as_element().is_some() {
-                return Some(c.clone());
+                return Some(c);
             }
         }
         None
@@ -600,7 +600,7 @@ impl NodeRef {
     pub fn last_element_child(&self) -> Option<NodeRef> {
         for c in self.children().rev() {
             if c.as_element().is_some() {
-                return Some(c.clone());
+                return Some(c);
             }
         }
         None
