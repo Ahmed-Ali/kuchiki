@@ -624,4 +624,12 @@ impl NodeRef {
 
         sib
     }
+
+    /// Returns element name if this instance if Element
+    pub fn element_name(&self) -> Option<&str> {
+        if let Some(e) = self.as_element() {
+            return Some(e.name.expanded().local);
+        }
+        None
+    }
 }
